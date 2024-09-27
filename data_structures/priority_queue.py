@@ -1,23 +1,29 @@
 import heapq
 
-class ShipmentQueue:
+class FibonacciHeapNode:
+    def __init__(self, value, priority):
+        self.value = value
+        self.priority = priority
+        self.degree = 0
+        self.parent = None
+        self.child = None
+        self.mark = False
+
+class FibonacciHeap:
     def __init__(self):
-        self.queue = []
-
-    # Method to add a shipment with a priority
-    def add_shipment(self, priority, shipment):
-        heapq.heappush(self.queue, (priority, shipment))
-
-    # Method to retrieve the next shipment with the highest priority (lowest priority value)
-    def get_next_shipment(self):
-        return heapq.heappop(self.queue)
-
-# Example usage:
-shipment_queue = ShipmentQueue()
-shipment_queue.add_shipment(1, 'UrgentShipment')
-shipment_queue.add_shipment(5, 'RegularShipment')
-shipment_queue.add_shipment(2, 'PriorityShipment')
-
-# Get the next shipment based on priority
-next_shipment = shipment_queue.get_next_shipment()
-print(next_shipment)
+        self.min_node = None
+        self.total_nodes = 0
+    
+    def insert(self, value, priority):
+        node = FibonacciHeapNode(value, priority)
+        if self.min_node is None:
+            self.min_node = node
+        else:
+            # Merge node with the root list
+            if priority < self.min_node.priority:
+                self.min_node = node
+        self.total_nodes += 1
+    
+    def extract_min(self):
+        # Implement min extraction
+        pass

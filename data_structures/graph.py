@@ -1,34 +1,46 @@
+import heapq
+from collections import defaultdict
+import math
+
 class Graph:
     def __init__(self):
-        self.adj_list = {}
-
-    # Method to add an edge between two nodes (locations) with the associated cost (e.g., distance, time)
+        self.adj_list = defaultdict(list)
+    
     def add_edge(self, u, v, cost):
-        if u not in self.adj_list:
-            self.adj_list[u] = []
         self.adj_list[u].append((v, cost))
+    
+    def heuristic(self, node, goal):
+        # Example heuristic (Euclidean distance)
+        return math.sqrt((goal[0] - node[0])**2 + (goal[1] - node[1])**2)
 
-    # Placeholder for Dijkstra's Algorithm to find the shortest path
-    def dijkstra(self, start_node):
-        import heapq
-        # Priority queue for selecting the next closest node
-        queue = [(0, start_node)]
-        distances = {node: float('inf') for node in self.adj_list}
-        distances[start_node] = 0
+    def a_star(self, start, goal):
+        open_set = [(0, start)]  # Priority queue
+        g_score = {start: 0}
+        f_score = {start: self.heuristic(start, goal)}
+        came_from = {}
         
-        while queue:
-            current_distance, current_node = heapq.heappop(queue)
+        while open_set:
+            current_f, current_node = heapq.heappop(open_set)
             
-            if current_distance > distances[current_node]:
-                continue
+            if current_node == goal:
+                return self.reconstruct_path(came_from, current_node)
             
-            for neighbor, weight in self.adj_list[current_node]:
-                distance = current_distance + weight
-                if distance < distances[neighbor]:
-                    distances[neighbor] = distance
-                    heapq.heappush(queue, (distance, neighbor))
+            for neighbor, cost in self.adj_list[current_node]:
+                tentative_g_score = g_score[current_node] + cost
+                if tentative_g_score < g_score.get(neighbor, float('inf')):
+                    came_from[neighbor] = current_node
+                    g_score[neighbor] = tentative_g_score
+                    f_score[neighbor] = tentative_g_score + self.heuristic(neighbor, goal)
+                    heapq.heappush(open_set, (f_score[neighbor], neighbor))
         
-        return distances  # Returns the shortest distances to all other nodes
+        return None
+    
+    def reconstruct_path(self, came_from, current):
+        path = []
+        while current in came_from:
+            path.append(current)
+            current = came_from[current]
+        return path[::-1]
 
 # Example usage:
 g = Graph()
